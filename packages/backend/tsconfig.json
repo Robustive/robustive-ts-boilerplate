@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    /**
+     * incrementalビルドに必要な情報を出力しているファイルのパス。viteに合わせて変更しているが、
+     * nest-cli.json で deleteOutDir : true にしている場合は一緒に消えて欲しいので dist以下に出るようにコメントアウト
+     */
+    // "tsBuildInfoFile": "../../node_modules/.tmp/backend.tsbuildinfo",
+    "module": "CommonJS",
+    "baseUrl": "../../",
+    "paths": {
+      "@domain/*": ["src/domain/*"],
+      "@infrastructure/*": ["src/infrastructure/*"],
+      "@backend/*": ["src/implementation/backend/*"],
+      "@shared/*": ["src/implementation/shared/*"]
+    },
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ESNext",
+    "sourceMap": true,
+    "outDir": "../../dist/backend",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
+  },
+  "include": [
+    "../../src/domain/**/*.ts",
+    "../../src/infrastructure/**/*.ts",
+    "../../src/implementation/backend/**/*.ts",
+    "../../src/implementation/shared/**/*.ts"
+  ],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
+}

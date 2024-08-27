@@ -1,0 +1,9 @@
+{
+  "watch": [
+    "../../src/domain/",
+    "../../src/implementation/backend/",
+    "../../src/implementation/shared/"
+  ],
+  "ext": "ts",
+  "exec": "node -r ts-node/register --env-file=.env.local ../../src/implementation/backend/main.ts"
+}

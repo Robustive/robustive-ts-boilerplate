@@ -1,0 +1,15 @@
+{
+  /* Solution Style */
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/frontend/tsconfig.app.json"
+    },
+    {
+      "path": "./packages/frontend/tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.vscode.backend.json"
+    }
+  ]
+}

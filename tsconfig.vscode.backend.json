@@ -1,0 +1,14 @@
+{
+  "extends": "./packages/backend/tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": "./"
+  },
+  "include": [
+    "src/domain/**/*.ts",
+    "src/infrastructure/**/*.ts",
+    "src/implementation/backend/**/*.ts",
+    // "src/implementation/frontend/**/*.ts",
+    "src/implementation/shared/**/*.ts"
+  ] /* VSCodeのTypeScript対策 */
+}
