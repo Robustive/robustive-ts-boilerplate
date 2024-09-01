@@ -1,7 +1,10 @@
 import { Empty, SwiftEnum, SwiftEnumCases } from "robustive-ts"
-
+import {
+  RouteLocationAsRelativeGeneric,
+  RouteLocationAsPathGeneric
+} from "vue-router"
 export const DrawerContentType = {
-  header: "header",
+  subheader: "subheader",
   divider: "divider",
   link: "link",
   group: "group"
@@ -12,16 +15,19 @@ export type DrawerContentType =
 
 // これだと入力補完が利かないので
 // type DrawerItems = {
-//     [DrawerContentType.header]: { title: string };
+//     [DrawerContentType.subheader]: { title: string };
 //     [DrawerContentType.divider]: Empty;
 //     [DrawerContentType.link]: { title: string; href: string };
 //     [DrawerContentType.group]: { title: string, children: DrawerItems[] };
 // };
 // こうする
 type DrawerItemContext = {
-  header: { title: string }
+  subheader: { title: string }
   divider: Empty
-  link: { title: string; href: string }
+  link: {
+    title: string
+    href: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric
+  }
   group: { title: string; children: DrawerItem[] }
 }
 

@@ -2,7 +2,7 @@
 import { SignInStatus } from "@domain/models/authentication/user"
 import { DrawerContentType } from "."
 import type { DrawerItem } from "."
-import { computed, reactive, watch } from "vue"
+import { computed, onBeforeUnmount, onMounted, reactive, watch } from "vue"
 
 const props = defineProps<{
   modelValue: boolean
@@ -17,9 +17,11 @@ const emits = defineEmits<{
 const state = reactive<{
   isOpen: boolean
   openings: string[]
+  selected: DrawerItem[] | undefined
 }>({
   isOpen: props.modelValue,
-  openings: []
+  openings: [],
+  selected: undefined
 })
 
 watch(
@@ -28,6 +30,18 @@ watch(
     state.isOpen = newVal
   }
 )
+
+const unselector = () => {
+  state.selected = undefined
+}
+
+onMounted(() => {
+  window.addEventListener("popstate", unselector)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener("popstate", unselector)
+})
 
 const photoUrl = computed((): string | undefined => {
   return props.signInStatus.case === SignInStatus.keys.signIn
@@ -60,14 +74,18 @@ const status = "TODO:ステータスを表示"
       </v-list-item>
     </v-list>
     <v-divider />
-    <v-list nav v-model:opened="state.openings">
+    <v-list
+      nav
+      v-model:opened="state.openings"
+      v-model:selected="state.selected"
+      open-strategy="multiple"
+    >
       <template v-for="(item, idx) in props.items">
         <v-list-subheader
-          v-if="item.case === DrawerContentType.header"
+          v-if="item.case === DrawerContentType.subheader"
           :key="'h' + idx"
-        >
-          {{ item.title }}
-        </v-list-subheader>
+          :title="item.title"
+        />
         <v-divider
           v-else-if="item.case === DrawerContentType.divider"
           :key="'d' + idx"
@@ -82,11 +100,10 @@ const status = "TODO:ステータスを表示"
           </template>
           <template v-for="(child, idx2) in item.children">
             <v-list-subheader
-              v-if="child.case === DrawerContentType.header"
+              v-if="child.case === DrawerContentType.subheader"
               :key="'g' + idx + '_h' + idx2"
-            >
-              {{ child.title }}
-            </v-list-subheader>
+              :title="child.title"
+            />
             <v-divider
               v-else-if="child.case === DrawerContentType.divider"
               :key="'g' + idx + '_d' + idx2"
@@ -104,7 +121,7 @@ const status = "TODO:ステータスを表示"
         </v-list-group>
         <v-list-item
           v-else
-          :key="idx"
+          :key="'i' + idx"
           :value="item"
           :title="item.title"
           :to="item.href"

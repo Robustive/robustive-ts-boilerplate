@@ -5,7 +5,7 @@ import { setHandOverSettings } from "@frontend/common"
 
 import App from "./App.vue"
 
-import { createApp, watch } from "vue"
+import { createApp } from "vue"
 import { loadRouter } from "./plugins/vueRouter"
 import { loadVuetify } from "./plugins/vuetify"
 import { config } from "@shared/config"
@@ -18,34 +18,23 @@ const router = loadRouter(app)
 loadVuetify(app)
 
 router.isReady().then(() => {
-  const initialPath = router.currentRoute.value.path
-  const service = createFrontendService(initialPath)
+  const service = createFrontendService(router)
   app.provide(SERVICE_KEY, service)
 
   /* Setup for Routing */
-  watch(
-    () => service.states.shared.routeLocation,
-    (newValue, oldValue) => {
-      console.info("★☆★☆★ RouteLocation:", oldValue, "--->", newValue)
-      router.replace(newValue).finally(() => {
-        service.actions.stopLoading()
-      })
-    }
-  )
-
   router.beforeEach((to, from) => {
     if (
       service.states.shared.routeLocation !== to.path &&
       service.states.shared.routeLocation === from.path
     ) {
       console.warn(
-        "!!!!! RouteLocation was changed directly by the user, e.g. from the address bar.",
+        "RouteLocation was changed directly, e.g. from <v-list-item :to='...'/>, the address bar or browser back (current:",
         from.path,
         "--->",
-        to.path
+        to.path,
+        ")."
       )
-      service.actions.routingTo(to.path)
-      return false
+      service.actions.navigateTo(to.path, true)
     }
     return true
   })

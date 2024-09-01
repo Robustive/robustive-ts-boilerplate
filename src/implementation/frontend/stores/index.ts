@@ -6,7 +6,7 @@ import { AuthenticatedUser } from "@domain/actors/authenticatedUser"
 import { DomainActionsMap, OneTime, State } from "../interfaces"
 import { ApplicationState, useApplicationStore } from "./application"
 import { InjectionKey, reactive } from "vue"
-import { RouteLocationRaw } from "vue-router"
+import { Router, RouteLocationRaw } from "vue-router"
 import { Subscription } from "rxjs"
 import { Empty, Scenes, StringKeyof } from "robustive-ts"
 import { AuthenticationState, useAuthenticationStore } from "./authentication"
@@ -53,7 +53,7 @@ export type FrontendService = {
       key: K,
       value: TypeOfStateItem<S, K>
     ) => void
-    routingTo: (path: string) => void
+    navigateTo: (path: string, onlyUpdateCurrentRouteLocation?: boolean) => void
     change: (signInStatus: SignInStatus) => void
     startLoading: () => void
     stopLoading: () => void
@@ -65,7 +65,8 @@ export type FrontendService = {
  * @param initialPath
  * @returns
  */
-export function createFrontendService(initialPath: string): FrontendService {
+export function createFrontendService(router: Router): FrontendService {
+  const initialPath = router.currentRoute.value.path
   const shared = reactive<SharedState>({
     actor: new Nobody(),
     routeLocation: initialPath,
@@ -156,8 +157,24 @@ export function createFrontendService(initialPath: string): FrontendService {
       },
       set,
       setOneTime,
-      routingTo: (path: string) => {
+      navigateTo: (
+        path: string,
+        onlyUpdateCurrentRouteLocation: boolean = false
+      ) => {
+        const oldValue = shared.routeLocation
         set(shared, "routeLocation", path)
+
+        if (
+          onlyUpdateCurrentRouteLocation &&
+          onlyUpdateCurrentRouteLocation === true
+        ) {
+          return service.actions.stopLoading()
+        }
+
+        console.info("★☆★☆★ RouteLocation:", oldValue, "--->", path)
+        router.push(path).finally(() => {
+          service.actions.stopLoading()
+        })
       },
       change: (signInStatus: SignInStatus) => {
         const prevStatus = shared.signInStatus.case

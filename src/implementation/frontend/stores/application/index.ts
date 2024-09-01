@@ -19,13 +19,21 @@ export interface ApplicationStore
 export function useApplicationStore(): ApplicationStore {
   const state = reactive<ApplicationState>({
     drawerItems: [
-      DrawerItem.header({ title: "Header1" }),
-      DrawerItem.link({ title: "Menu1", href: "/menu1" }),
+      DrawerItem.subheader({ title: "Header1" }),
+      DrawerItem.link({ title: "Home", href: "/" }),
+      DrawerItem.link({ title: "Page1", href: "/page1" }),
+      DrawerItem.link({ title: "Page2", href: "/page2" }),
+      DrawerItem.link({ title: "Page3", href: "/page3" }),
       DrawerItem.divider(),
-      DrawerItem.header({ title: "Header2" }),
+      DrawerItem.subheader({ title: "Header2" }),
       DrawerItem.group({
         title: "Menu Group",
-        children: Array<DrawerItem>()
+        children: [
+          DrawerItem.link({ title: "Home", href: "/group" }),
+          DrawerItem.link({ title: "Page1", href: "/group/page1" }),
+          DrawerItem.link({ title: "Page2", href: "/group/page2" }),
+          DrawerItem.link({ title: "Page3", href: "/group/page3" })
+        ]
       })
     ],
     replyFromBackend: undefined
