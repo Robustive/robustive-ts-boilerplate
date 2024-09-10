@@ -4,10 +4,11 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  const isDevelopment = mode === "development"
   return {
     root: "../../",
     define: {
-      __VUE_PROD_DEVTOOLS__: mode === "development"
+      __VUE_PROD_DEVTOOLS__: isDevelopment
     },
     plugins: [
       vue({
@@ -26,7 +27,8 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: "dist/frontend",
-      sourcemap: true
+      sourcemap: true,
+      minify: !isDevelopment
     }
   }
 })

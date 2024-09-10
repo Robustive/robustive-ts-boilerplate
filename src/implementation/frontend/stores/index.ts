@@ -5,7 +5,7 @@ import { Nobody } from "@domain/actors/nobody"
 import { AuthenticatedUser } from "@domain/actors/authenticatedUser"
 import { DomainActionsMap, OneTime, State } from "../interfaces"
 import { ApplicationState, useApplicationStore } from "./application"
-import { InjectionKey, reactive } from "vue"
+import { InjectionKey, reactive, watch, WatchStopHandle } from "vue"
 import { Router, RouteLocationRaw } from "vue-router"
 import { Subscription } from "rxjs"
 import { Empty, Scenes, StringKeyof } from "robustive-ts"
@@ -127,25 +127,23 @@ export function createFrontendService(router: Router): FrontendService {
         // 初回表示時対応
         // signInStatus が不明の場合、signInUserでないと実行できないUsecaseがエラーになるので、
         // ステータスが変わるのを監視し、その後実行し直す
-        // if (shared.signInStatus.case === SignInStatus.unknown) {
-        //   console.info(
-        //     "[DISPATCH] signInStatus が 不明のため、ユースケースの実行を保留します..."
-        //   );
-        //   let stopHandle: WatchStopHandle | null = null;
-        //   return new Promise<void>((resolve) => {
-        //     stopHandle = watch(shared.signInStatus, (newValue) => {
-        //       if (newValue.case !== SignInStatus.unknown) {
-        //         console.log(
-        //           `[DISPATCH] signInStatus が "${newValue.case as string}" に変わったため、保留したユースケースを再開します...`
-        //         );
-        //         resolve();
-        //       }
-        //     });
-        //   }).then(() => {
-        //     stopHandle?.();
-        //     return service.actions.dispatch(usecase);
-        //   });
-        // }
+        if (shared.signInStatus.case === SignInStatus.keys.unknown) {
+          console.info("[DISPATCH] signInStatus が 不明のため、ユースケースの実行を保留します...")
+          let stopHandle: WatchStopHandle | null = null
+          return new Promise<void>((resolve) => {
+            stopHandle = watch(shared.signInStatus, (newValue) => {
+              if (newValue.case !== SignInStatus.keys.unknown) {
+                console.log(
+                  `[DISPATCH] signInStatus が "${newValue.case as string}" に変わったため、保留したユースケースを再開します...`
+                )
+                resolve()
+              }
+            })
+          }).then(() => {
+            stopHandle?.()
+            return service.actions.dispatch(usecase)
+          })
+        }
 
         const action = domainActionsMap[usecase.domain][usecase.name]
         return action(usecase, _actor, service)
@@ -174,7 +172,7 @@ export function createFrontendService(router: Router): FrontendService {
 
         switch (signInStatus.case) {
           case SignInStatus.keys.signIn: {
-            // _shared.actor = new AuthorizedUser(signInStatus.userProperties);
+            set(shared, "actor", new AuthenticatedUser(signInStatus.userProperties))
             break
           }
           case SignInStatus.keys.signingIn: {
