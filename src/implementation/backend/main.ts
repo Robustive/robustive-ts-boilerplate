@@ -4,10 +4,10 @@ import { Request, Response, NextFunction } from "express"
 import * as session from "express-session"
 
 import { DomainNotAuthorizedError, loadPassport } from "./plugins/passport"
-import { createBackendService } from "./controllers"
 import { join } from "path"
 import { SessionStoredError } from "@domain/errors"
 import { config } from "@shared/config"
+import { setupUsecases } from "./controllers"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ANY = any
@@ -80,7 +80,7 @@ app.post("/auth/signout", (req, res, next) => {
   })
 })
 
-createBackendService(app)
+setupUsecases(app)
 
 // Error handling
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void => {

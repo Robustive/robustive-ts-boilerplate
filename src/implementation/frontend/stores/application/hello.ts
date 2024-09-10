@@ -1,7 +1,7 @@
 import { R } from "@domain/usecases"
 import { HelloScenes } from "@domain/usecases/application/hello"
 import { handOverToBackend } from "@frontend/common"
-import { Context, Scenario } from "robustive-ts"
+import { Context, IActor, NOCARE, Scenario } from "robustive-ts"
 import { FrontendService, Mutation } from ".."
 import { Behavior, Choreography } from "@shared/scenarioDelegate"
 
@@ -9,9 +9,9 @@ export function createFrontendHelloChoreography(
   service: FrontendService
 ): Choreography<HelloScenes> {
   const { basics, goals } = R.application.hello.keys
-  const behavior = (scenario: Scenario<HelloScenes>): Behavior<HelloScenes> => {
+  const behavior = <A extends IActor<NOCARE>>(scenario: Scenario<HelloScenes>): Behavior<A, HelloScenes> => {
     return {
-      [basics.フロントエンドはバックエンドにHelloを送る]: ({
+      [basics.フロントエンドはバックエンドにHelloを送る]: (_actor: A, {
         hello
       }: {
         hello: string
@@ -23,14 +23,14 @@ export function createFrontendHelloChoreography(
           scenario
         )
       },
-      [basics.バックエンドはフロントエンドからHelloを受け取る]: ({
+      [basics.バックエンドはフロントエンドからHelloを受け取る]: (_actor: A, {
         hello: _hello
       }: {
         hello: string
       }): Promise<Context<HelloScenes>> => {
         throw new Error("not implemented")
       },
-      [basics.バックエンドはフロンエンドに返事をする]: ({
+      [basics.バックエンドはフロンエンドに返事をする]: (_actor: A, {
         hello: _hello
       }: {
         hello: string

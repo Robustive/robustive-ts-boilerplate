@@ -1,6 +1,6 @@
 import { R } from "@domain/usecases"
 import { BootScenes } from "@domain/usecases/application/boot"
-import { Context, Scenario } from "robustive-ts"
+import { Context, IActor, NOCARE, Scenario } from "robustive-ts"
 import { FrontendService, Mutation } from ".."
 import { Account, SignInStatus } from "@domain/models/authentication/user"
 import { handOverToBackend } from "@frontend/common"
@@ -10,16 +10,16 @@ import { Behavior, Choreography } from "@shared/scenarioDelegate"
 export function createFrontendBootChoreography(service: FrontendService): Choreography<BootScenes> {
   const { basics, goals } = R.application.boot.keys
 
-  const behavior = (scenario: Scenario<BootScenes>): Behavior<BootScenes> => {
+  const behavior = <A extends IActor<NOCARE>>(scenario: Scenario<BootScenes>): Behavior<A, BootScenes> => {
     return {
-      [basics.ユーザはサイトを開く]: (): Promise<Context<BootScenes>> => {
+      [basics.ユーザはサイトを開く]: (_actor: A): Promise<Context<BootScenes>> => {
         return scenario.just(
           scenario.basics.システムはサインインセッションを確認する({
             session: null
           })
         )
       },
-      [basics.システムはサインインセッションを確認する]: ({
+      [basics.システムはサインインセッションを確認する]: (_actor: A, {
         session
       }: {
         session: {

@@ -1,5 +1,5 @@
 import { R } from "@domain/usecases"
-import { Context, Scenario } from "robustive-ts"
+import { Context, IActor, NOCARE, Scenario } from "robustive-ts"
 import { FrontendService, Mutation } from ".."
 import { SignInScenes } from "@domain/usecases/authentication/signIn"
 import { Behavior, Choreography } from "@shared/scenarioDelegate"
@@ -9,12 +9,12 @@ export function createFrontendSignInChoreography(
 ): Choreography<SignInScenes> {
   const { basics, goals } = R.authentication.signIn.keys
 
-  const behavior = (scenario: Scenario<SignInScenes>): Behavior<SignInScenes> => {
+  const behavior = <A extends IActor<NOCARE>>(scenario: Scenario<SignInScenes>): Behavior<A, SignInScenes> => {
     return {
-      [basics.ユーザはサインインボタンを押下する]: (): Promise<Context<SignInScenes>> => {
+      [basics.ユーザはサインインボタンを押下する]: (_actor: A): Promise<Context<SignInScenes>> => {
         return scenario.just(scenario.basics.システムはGoogleOAuthを行う())
       },
-      [basics.システムはGoogleOAuthを行う]: (): Promise<Context<SignInScenes>> => {
+      [basics.システムはGoogleOAuthを行う]: (_actor: A): Promise<Context<SignInScenes>> => {
         window.location.href = "/auth/google"
         return scenario.just(scenario.goals.GoogleOAuthでリダイレクトするためここには到達しない())
       }

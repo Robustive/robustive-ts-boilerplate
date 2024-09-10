@@ -1,6 +1,7 @@
 import { Actor } from "@domain/actors"
 import { DomainKeys, Requirements, Usecase, UsecaseKeys } from "@domain/usecases"
 import { Context, Courses, InferScenesInScenario, StringKeyof } from "robustive-ts"
+import { BackendService } from "./controllers"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type VariousPatterns = any
@@ -18,7 +19,8 @@ export type HandOverContext = {
  */
 export type Action<D extends DomainKeys, U extends StringKeyof<Requirements[D]>> = (
   usecase: Usecase<D, U>,
-  actor: Actor
+  actor: Actor,
+  service: BackendService
 ) => Promise<Context<InferScenesInScenario<Usecase<D, U>>>>
 
 export type Actions<D extends DomainKeys> = {

@@ -9,64 +9,91 @@ import { Nobody } from "@domain/actors/nobody"
 import { BootScenes } from "@domain/usecases/application/boot"
 import { stepThoughUntil } from "@backend/common"
 import { HelloScenes } from "@domain/usecases/application/hello"
-import { createBackendBootBehavior } from "@backend/applications/boot"
+import { createBackendBootChoreography } from "@backend/applications/boot"
 
-import { createBackendSignInBehavior } from "@backend/authentication/signIn"
+import { createBackendSignInChoreography } from "@backend/authentication/signIn"
 import { SignInScenes } from "@domain/usecases/authentication/signIn"
 import { ExRequest } from "@backend/main"
 import { config } from "@shared/config"
-import { createBackendSignOutBehavior } from "@backend/authentication/signOut"
+import { createBackendSignOutChoreography } from "@backend/authentication/signOut"
 import { ScenarioDelegate } from "@shared/scenarioDelegate"
-import { createBackendHelloBehavior } from "@backend/applications/hello"
+import { createBackendHelloChoreography } from "@backend/applications/hello"
 
-export function createBackendService(app: Express) {
-  const domainActionsMap: DomainActionsMap = {
-    [R.keys.application]: {
-      [R.application.keys.boot]: (
-        usecase: Usecase<"application", "boot">,
-        actor: Actor
-      ): Promise<Context<BootScenes>> => {
-        usecase.set(new ScenarioDelegate(createBackendBootBehavior))
-        return usecase.progress(actor)
-      },
-      [R.application.keys.hello]: (
-        usecase: Usecase<"application", "hello">,
-        actor: Actor
-      ): Promise<Context<HelloScenes>> => {
-        usecase.set(new ScenarioDelegate(createBackendHelloBehavior))
-        return stepThoughUntil<HelloScenes>(
-          "goals",
-          R.application.hello.keys.goals.フロントエンドはバックエンドから返事を受け取る,
-          usecase,
-          actor
-        )
-      }
+const domainActionsMap: DomainActionsMap = {
+  [R.keys.application]: {
+    [R.application.keys.boot]: (
+      usecase: Usecase<"application", "boot">,
+      actor: Actor,
+      service: BackendService
+    ): Promise<Context<BootScenes>> => {
+      usecase.set(new ScenarioDelegate(createBackendBootChoreography(service)))
+      return usecase.progress(actor)
     },
-    [R.keys.authentication]: {
-      [R.authentication.keys.signIn]: (
-        usecase: Usecase<"authentication", "signIn">,
-        actor: Actor
-      ): Promise<Context<SignInScenes>> => {
-        usecase.set(new ScenarioDelegate(createBackendSignInBehavior))
-        return usecase.progress(actor)
-      },
-      [R.authentication.keys.signOut]: (
-        usecase: Usecase<"authentication", "signOut">,
-        actor: Actor
-      ): Promise<Context<SignInScenes>> => {
-        usecase.set(new ScenarioDelegate(createBackendSignOutBehavior))
-        return usecase.progress(actor)
+    [R.application.keys.hello]: (
+      usecase: Usecase<"application", "hello">,
+      actor: Actor,
+      service: BackendService
+    ): Promise<Context<HelloScenes>> => {
+      usecase.set(new ScenarioDelegate(createBackendHelloChoreography(service)))
+      return stepThoughUntil<HelloScenes>(
+        "goals",
+        R.application.hello.keys.goals.フロントエンドはバックエンドから返事を受け取る,
+        usecase,
+        actor
+      )
+    }
+  },
+  [R.keys.authentication]: {
+    [R.authentication.keys.signIn]: (
+      usecase: Usecase<"authentication", "signIn">,
+      actor: Actor,
+      service: BackendService
+    ): Promise<Context<SignInScenes>> => {
+      usecase.set(new ScenarioDelegate(createBackendSignInChoreography(service)))
+      return usecase.progress(actor)
+    },
+    [R.authentication.keys.signOut]: (
+      usecase: Usecase<"authentication", "signOut">,
+      actor: Actor,
+      service: BackendService
+    ): Promise<Context<SignInScenes>> => {
+      usecase.set(new ScenarioDelegate(createBackendSignOutChoreography(service)))
+      return usecase.progress(actor)
+    }
+  }
+}
+export type BackendService = {
+  // repositories: {
+  //   user: UserRepository
+  // }
+  actions: {
+    dispatch: <D extends DomainKeys, U extends StringKeyof<Requirements[D]>>(
+      usecase: Usecase<D, U>,
+      actor?: Actor
+    ) => Promise<Context<VariousPatterns>>
+  }
+}
+
+function createBackendService(): BackendService {
+  const service: BackendService = {
+    actions: {
+      dispatch: <D extends DomainKeys, U extends StringKeyof<Requirements[D]>>(
+        usecase: Usecase<D, U>,
+        actor?: Actor
+      ): Promise<Context<VariousPatterns>> => {
+        const action = domainActionsMap[usecase.domain][usecase.name]
+        return action(usecase, actor, service)
       }
     }
   }
 
-  const dispatch = <D extends DomainKeys, U extends StringKeyof<Requirements[D]>>(
-    usecase: Usecase<D, U>,
-    actor?: Actor
-  ): Promise<Context<VariousPatterns>> => {
-    const action = domainActionsMap[usecase.domain][usecase.name]
-    return action(usecase, actor)
-  }
+  return service
+}
+
+export function setupUsecases(app: Express) {
+  const {
+    actions: { dispatch }
+  } = createBackendService()
 
   app.get(
     `/${config.BACKEND_GLOBAL_PREFIX}/domain/:domain/usecase/:usecase/course/:course/scene/:scene`,

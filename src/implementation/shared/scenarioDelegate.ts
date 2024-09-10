@@ -13,63 +13,51 @@ import {
   StringKeyof
 } from "robustive-ts"
 
-export type Behavior<Z extends Scenes> = Z["alternatives"] extends Empty
+export type Behavior<A extends IActor<NOCARE>, Z extends Scenes> = Z["alternatives"] extends Empty
   ? {
-      [S in keyof Z["basics"]]: Z["basics"][S] extends Empty
-        ? () => Promise<Context<Z>>
-        : (associatedValues: Z["basics"][S]) => Promise<Context<Z>>
-    }
+    [S in keyof Z["basics"]]: Z["basics"][S] extends Empty
+    ? (actor: A) => Promise<Context<Z>>
+    : (actor: A, associatedValues: Z["basics"][S]) => Promise<Context<Z>>
+  }
   : {
-      [S in keyof Z["basics"]]: Z["basics"][S] extends Empty
-        ? () => Promise<Context<Z>>
-        : (associatedValues: Z["basics"][S]) => Promise<Context<Z>>
-    } & {
-      [S in keyof Z["alternatives"]]: Z["alternatives"][S] extends Empty
-        ? () => Promise<Context<Z>>
-        : (associatedValues: Z["alternatives"][S]) => Promise<Context<Z>>
-    }
+    [S in keyof Z["basics"]]: Z["basics"][S] extends Empty
+    ? (actor: A) => Promise<Context<Z>>
+    : (actor: A, associatedValues: Z["basics"][S]) => Promise<Context<Z>>
+  } & {
+    [S in keyof Z["alternatives"]]: Z["alternatives"][S] extends Empty
+    ? (actor: A) => Promise<Context<Z>>
+    : (actor: A, associatedValues: Z["alternatives"][S]) => Promise<Context<Z>>
+  }
 
 export type Mutation<Z extends Scenes> = {
   [S in keyof Z["goals"]]: Z["goals"][S] extends Empty
-    ? () => void
-    : (associatedValues: Z["goals"][S]) => void
+  ? () => void
+  : (associatedValues: Z["goals"][S]) => void
 }
 
 export type Choreography<Z extends Scenes> = {
-  behavior: (scenario: Scenario<Z>) => Behavior<Z>
-  mutation: Mutation<Z>
+  behavior: <A extends IActor<NOCARE>>(scenario: Scenario<Z>) => Behavior<A, Z>
+  mutation?: Mutation<Z>
   rewind?: (error: Error) => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isChoreography<Z extends Scenes>(arg: any): arg is Choreography<Z> {
-  return arg.behavior !== undefined
-}
-
 export class ScenarioDelegate<Z extends Scenes> implements IScenarioDelegate<Z> {
-  protected behavior: (scenario: Scenario<Z>) => Behavior<Z>
+  protected behavior: <A extends IActor<NOCARE>>(scenario: Scenario<Z>) => Behavior<A, Z>
   protected mutation?: Mutation<Z>
   protected rewind?: (error: Error) => void
 
-  constructor(choreography: Choreography<Z>)
-  constructor(mutation: (scenario: Scenario<Z>) => Behavior<Z>)
-
-  constructor(arg: Choreography<Z> | ((scenario: Scenario<Z>) => Behavior<Z>)) {
-    if (isChoreography<Z>(arg)) {
-      this.behavior = arg.behavior
-      this.mutation = arg.mutation
-      this.rewind = arg.rewind
-    } else {
-      this.behavior = arg
-    }
+  constructor({ behavior, mutation, rewind }: Choreography<Z>) {
+    this.behavior = behavior
+    this.mutation = mutation
+    this.rewind = rewind
   }
 
   next<A extends IActor<NOCARE>>(
     { scene, course: _c, ...associatedValues }: Context<Z>,
-    _actor: A,
+    actor: A,
     scenario: Scenario<Z>
   ): Promise<Context<Z>> {
-    return this.behavior(scenario)[scene](associatedValues as NOCARE) // TODO: Fix any
+    return this.behavior(scenario)[scene](actor, associatedValues as NOCARE) // TODO: Fix any
   }
 
   authorize<
