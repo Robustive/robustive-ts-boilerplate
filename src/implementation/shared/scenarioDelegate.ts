@@ -15,24 +15,24 @@ import {
 
 export type Behavior<A extends IActor<NOCARE>, Z extends Scenes> = Z["alternatives"] extends Empty
   ? {
-    [S in keyof Z["basics"]]: Z["basics"][S] extends Empty
-    ? (actor: A) => Promise<Context<Z>>
-    : (actor: A, associatedValues: Z["basics"][S]) => Promise<Context<Z>>
-  }
+      [S in keyof Z["basics"]]: Z["basics"][S] extends Empty
+        ? (actor: A) => Promise<Context<Z>>
+        : (actor: A, associatedValues: Z["basics"][S]) => Promise<Context<Z>>
+    }
   : {
-    [S in keyof Z["basics"]]: Z["basics"][S] extends Empty
-    ? (actor: A) => Promise<Context<Z>>
-    : (actor: A, associatedValues: Z["basics"][S]) => Promise<Context<Z>>
-  } & {
-    [S in keyof Z["alternatives"]]: Z["alternatives"][S] extends Empty
-    ? (actor: A) => Promise<Context<Z>>
-    : (actor: A, associatedValues: Z["alternatives"][S]) => Promise<Context<Z>>
-  }
+      [S in keyof Z["basics"]]: Z["basics"][S] extends Empty
+        ? (actor: A) => Promise<Context<Z>>
+        : (actor: A, associatedValues: Z["basics"][S]) => Promise<Context<Z>>
+    } & {
+      [S in keyof Z["alternatives"]]: Z["alternatives"][S] extends Empty
+        ? (actor: A) => Promise<Context<Z>>
+        : (actor: A, associatedValues: Z["alternatives"][S]) => Promise<Context<Z>>
+    }
 
 export type Mutation<Z extends Scenes> = {
   [S in keyof Z["goals"]]: Z["goals"][S] extends Empty
-  ? () => void
-  : (associatedValues: Z["goals"][S]) => void
+    ? () => void
+    : (associatedValues: Z["goals"][S]) => void
 }
 
 export type Choreography<Z extends Scenes> = {
