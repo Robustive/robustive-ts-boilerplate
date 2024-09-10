@@ -83,17 +83,15 @@ app.post("/auth/signout", (req, res, next) => {
 createBackendService(app)
 
 // Error handling
-app.use(
-  (err: Error, _req: Request, res: Response, _next: NextFunction): void => {
-    if (err instanceof DomainNotAuthorizedError) {
-      return res.redirect("/")
-    }
-
-    console.error(err)
-
-    // Unhandled
-    res.status(500).json({ error: err.message })
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void => {
+  if (err instanceof DomainNotAuthorizedError) {
+    return res.redirect("/")
   }
-)
+
+  console.error(err)
+
+  // Unhandled
+  res.status(500).json({ error: err.message })
+})
 
 app.listen(3001, () => console.log("Start listening on 3001..."))

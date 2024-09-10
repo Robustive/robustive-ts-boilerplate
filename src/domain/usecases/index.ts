@@ -33,10 +33,11 @@ export type UsecaseKeys = {
 
 export type Usecases = AllUsecasesOverDomain<Requirements>
 export type UsecasesOf<D extends DomainKeys> = AllUsecases<Requirements, D>
-export type Usecase<
-  D extends DomainKeys,
-  U extends keyof Requirements[D]
-> = UsecaseOrg<Requirements, D, U>
+export type Usecase<D extends DomainKeys, U extends keyof Requirements[D]> = UsecaseOrg<
+  Requirements,
+  D,
+  U
+>
 
 export type UsecaseLog<D extends DomainKeys> = {
   id: string

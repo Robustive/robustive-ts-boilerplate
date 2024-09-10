@@ -24,5 +24,4 @@ export class Nobody extends AbstractActor<null> {
   //   return true
   // }
 }
-export const isNobody = (actor: Actor): actor is Nobody =>
-  actor.constructor === Nobody
+export const isNobody = (actor: Actor): actor is Nobody => actor.constructor === Nobody

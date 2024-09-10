@@ -2,11 +2,7 @@ import { Actor } from "@domain/actors"
 import { DomainKeys, R, Requirements, Usecase } from "@domain/usecases"
 import { Context, StringKeyof } from "robustive-ts"
 import { Express, Request } from "express"
-import {
-  DomainActionsMap,
-  HandOverContext,
-  VariousPatterns
-} from "@backend/interfaces"
+import { DomainActionsMap, HandOverContext, VariousPatterns } from "@backend/interfaces"
 import { Account } from "@domain/models/authentication/user"
 import { AuthenticatedUser } from "@domain/actors/authenticatedUser"
 import { Nobody } from "@domain/actors/nobody"
@@ -40,8 +36,7 @@ export function createBackendService(app: Express) {
         usecase.set(new ScenarioDelegate(createBackendHelloBehavior))
         return stepThoughUntil<HelloScenes>(
           "goals",
-          R.application.hello.keys.goals
-            .フロントエンドはバックエンドから返事を受け取る,
+          R.application.hello.keys.goals.フロントエンドはバックエンドから返事を受け取る,
           usecase,
           actor
         )
@@ -65,10 +60,7 @@ export function createBackendService(app: Express) {
     }
   }
 
-  const dispatch = <
-    D extends DomainKeys,
-    U extends StringKeyof<Requirements[D]>
-  >(
+  const dispatch = <D extends DomainKeys, U extends StringKeyof<Requirements[D]>>(
     usecase: Usecase<D, U>,
     actor?: Actor
   ): Promise<Context<VariousPatterns>> => {
@@ -97,11 +89,7 @@ export function createBackendService(app: Express) {
         true
       )
 
-      console.info(
-        `[DISPATCH] ${domain}.${usecase} (${id})`,
-        associatedValues,
-        actor
-      )
+      console.info(`[DISPATCH] ${domain}.${usecase} (${id})`, associatedValues, actor)
 
       return dispatch(scenario, actor).then((result) => {
         delete (req as ExRequest<HandOverContext>).session.hasError

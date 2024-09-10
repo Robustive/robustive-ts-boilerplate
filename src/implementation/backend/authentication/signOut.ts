@@ -8,12 +8,12 @@ export function createBackendSignOutBehavior(
 ): Behavior<SignOutScenes> {
   // frontend からのリクエストを passport が処理するためユースケースを通らない
   return {
-    [R.authentication.signOut.keys.basics.ユーザはサインアウトボタンを押下する]:
-      (): Promise<Context<SignOutScenes>> => {
-        throw new Error("not implemented")
-      },
-    [R.authentication.signOut.keys.basics
-      .システムはサインインセッションを破棄する]: (): Promise<
+    [R.authentication.signOut.keys.basics.ユーザはサインアウトボタンを押下する]: (): Promise<
+      Context<SignOutScenes>
+    > => {
+      throw new Error("not implemented")
+    },
+    [R.authentication.signOut.keys.basics.システムはサインインセッションを破棄する]: (): Promise<
       Context<SignOutScenes>
     > => {
       throw new Error("not implemented")

@@ -10,5 +10,4 @@ export class Service extends AbstractActor<null> {
     return true
   }
 }
-export const isService = (actor: Actor): actor is Service =>
-  actor.constructor === Service
+export const isService = (actor: Actor): actor is Service => actor.constructor === Service

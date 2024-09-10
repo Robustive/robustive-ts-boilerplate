@@ -46,9 +46,7 @@ function isChoreography<Z extends Scenes>(arg: any): arg is Choreography<Z> {
   return arg.behavior !== undefined
 }
 
-export class ScenarioDelegate<Z extends Scenes>
-  implements IScenarioDelegate<Z>
-{
+export class ScenarioDelegate<Z extends Scenes> implements IScenarioDelegate<Z> {
   protected behavior: (scenario: Scenario<Z>) => Behavior<Z>
   protected mutation?: Mutation<Z>
   protected rewind?: (error: Error) => void
@@ -80,8 +78,7 @@ export class ScenarioDelegate<Z extends Scenes>
     D extends StringKeyof<R>,
     U extends StringKeyof<R[D]>
   >(actor: A, domain: D, usecase: U): boolean {
-    const isAuthorizedTo = (actor as unknown as AbstractActor<unknown>)
-      .isAuthorizedTo
+    const isAuthorizedTo = (actor as unknown as AbstractActor<unknown>).isAuthorizedTo
     if (isAuthorizedTo === undefined) return true
     return isAuthorizedTo(domain, usecase)
   }
@@ -99,11 +96,7 @@ export class ScenarioDelegate<Z extends Scenes>
     )
 
     if (withResult.type === InteractResultType.success) {
-      const {
-        course: __,
-        scene,
-        ...associatedValues
-      } = withResult.lastSceneContext
+      const { course: __, scene, ...associatedValues } = withResult.lastSceneContext
       this.mutation?.[scene](associatedValues as NOCARE) // TODO: fix any
     } else {
       this.rewind?.(withResult.error)

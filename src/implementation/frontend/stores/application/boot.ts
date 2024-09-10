@@ -7,9 +7,7 @@ import { handOverToBackend } from "@frontend/common"
 import { SessionStoredError } from "@domain/errors"
 import { Behavior, Choreography } from "@shared/scenarioDelegate"
 
-export function createFrontendBootChoreography(
-  service: FrontendService
-): Choreography<BootScenes> {
+export function createFrontendBootChoreography(service: FrontendService): Choreography<BootScenes> {
   const { basics, goals } = R.application.boot.keys
 
   const behavior = (scenario: Scenario<BootScenes>): Behavior<BootScenes> => {
@@ -50,22 +48,20 @@ export function createFrontendBootChoreography(
       )
       console.log("サインインセッションあり", account)
     },
-    [goals.サインインセッションがない場合_システムはサインイン画面を表示する]:
-      () => {
-        service.actions.change(SignInStatus.signOut())
-        console.log("サインインセッションなし")
-        // service.actions.routingTo("/signin")
-      },
-    [goals.セッションにエラー情報がある場合_システムはホーム画面にエラー表示する]:
-      ({ sessionStoredError }: { sessionStoredError: SessionStoredError }) => {
-        service.actions.change(SignInStatus.signOut())
-        console.log("セッションにサインインエラーあり")
-        service.actions.setOneTime(
-          service.states.shared,
-          "sessionStoredError",
-          sessionStoredError
-        )
-      }
+    [goals.サインインセッションがない場合_システムはサインイン画面を表示する]: () => {
+      service.actions.change(SignInStatus.signOut())
+      console.log("サインインセッションなし")
+      // service.actions.routingTo("/signin")
+    },
+    [goals.セッションにエラー情報がある場合_システムはホーム画面にエラー表示する]: ({
+      sessionStoredError
+    }: {
+      sessionStoredError: SessionStoredError
+    }) => {
+      service.actions.change(SignInStatus.signOut())
+      console.log("セッションにサインインエラーあり")
+      service.actions.setOneTime(service.states.shared, "sessionStoredError", sessionStoredError)
+    }
   }
 
   return {

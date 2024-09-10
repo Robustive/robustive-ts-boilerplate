@@ -75,11 +75,9 @@ export function createFrontendService(router: Router): FrontendService {
     sessionStoredError: null
   }) as SharedState // reactiveで型が壊れるので、再度型を指定する
 
-  const { state: application, actions: applicationActions } =
-    useApplicationStore()
+  const { state: application, actions: applicationActions } = useApplicationStore()
 
-  const { state: authentication, actions: authenticationActions } =
-    useAuthenticationStore()
+  const { state: authentication, actions: authenticationActions } = useAuthenticationStore()
 
   const domainActionsMap: DomainActionsMap = {
     [R.keys.application]: applicationActions,
@@ -121,10 +119,7 @@ export function createFrontendService(router: Router): FrontendService {
           `[DISPATCH] ${usecase.domain}.${usecase.name}.${usecase.course}.${usecase.scene} (${usecase.id})`
         )
 
-        if (
-          usecase.domain === R.keys.application &&
-          usecase.name === R.application.keys.boot
-        ) {
+        if (usecase.domain === R.keys.application && usecase.name === R.application.keys.boot) {
           const action = domainActionsMap[usecase.domain][usecase.name]
           return action(usecase, _actor, service)
         }
@@ -157,17 +152,11 @@ export function createFrontendService(router: Router): FrontendService {
       },
       set,
       setOneTime,
-      navigateTo: (
-        path: string,
-        onlyUpdateCurrentRouteLocation: boolean = false
-      ) => {
+      navigateTo: (path: string, onlyUpdateCurrentRouteLocation: boolean = false) => {
         const oldValue = shared.routeLocation
         set(shared, "routeLocation", path)
 
-        if (
-          onlyUpdateCurrentRouteLocation &&
-          onlyUpdateCurrentRouteLocation === true
-        ) {
+        if (onlyUpdateCurrentRouteLocation && onlyUpdateCurrentRouteLocation === true) {
           return service.actions.stopLoading()
         }
 
@@ -222,6 +211,4 @@ export function createFrontendService(router: Router): FrontendService {
   return service
 }
 
-export const SERVICE_KEY = Symbol(
-  "FrontendService"
-) as InjectionKey<FrontendService>
+export const SERVICE_KEY = Symbol("FrontendService") as InjectionKey<FrontendService>

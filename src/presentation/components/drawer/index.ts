@@ -1,8 +1,5 @@
 import { Empty, SwiftEnum, SwiftEnumCases } from "robustive-ts"
-import {
-  RouteLocationAsRelativeGeneric,
-  RouteLocationAsPathGeneric
-} from "vue-router"
+import { RouteLocationAsRelativeGeneric, RouteLocationAsPathGeneric } from "vue-router"
 export const DrawerContentType = {
   subheader: "subheader",
   divider: "divider",
@@ -10,8 +7,7 @@ export const DrawerContentType = {
   group: "group"
 } as const
 
-export type DrawerContentType =
-  (typeof DrawerContentType)[keyof typeof DrawerContentType]
+export type DrawerContentType = (typeof DrawerContentType)[keyof typeof DrawerContentType]
 
 // これだと入力補完が利かないので
 // type DrawerItems = {

@@ -26,9 +26,7 @@ export function useAuthenticationStore(): AuthenticationStore {
         actor: Actor,
         service: FrontendService
       ): Promise<void> => {
-        usecase.set(
-          new ScenarioDelegate(createFrontendSignInChoreography(service))
-        )
+        usecase.set(new ScenarioDelegate(createFrontendSignInChoreography(service)))
         return usecase.interactedBy(actor).then((_) => {})
       },
       [R.authentication.keys.signOut]: (
@@ -36,9 +34,7 @@ export function useAuthenticationStore(): AuthenticationStore {
         actor: Actor,
         service: FrontendService
       ): Promise<void> => {
-        usecase.set(
-          new ScenarioDelegate(createFrontendSignOutChoreography(service))
-        )
+        usecase.set(new ScenarioDelegate(createFrontendSignOutChoreography(service)))
         return usecase.interactedBy(actor).then((_) => {})
       }
     }

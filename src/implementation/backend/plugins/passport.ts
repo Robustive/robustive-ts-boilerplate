@@ -48,12 +48,11 @@ export function loadPassport(): _passport.PassportStatic {
         const domain = account.email.split("@")[1]
 
         if (config.AUTHORIZED_DOMAIN && domain !== config.AUTHORIZED_DOMAIN) {
-          ;(req as ExRequest).session.hasError =
-            SessionStoredError.domainNotAllowed({
-              title: "認証エラー",
-              body: `ドメイン "${domain}" でのサインインは許可されていません`,
-              domain
-            })
+          ;(req as ExRequest).session.hasError = SessionStoredError.domainNotAllowed({
+            title: "認証エラー",
+            body: `ドメイン "${domain}" でのサインインは許可されていません`,
+            domain
+          })
           return done(new DomainNotAuthorizedError(domain), null)
         }
 
@@ -62,21 +61,17 @@ export function loadPassport(): _passport.PassportStatic {
     )
   )
 
-  _passport.serializeUser(
-    (user: Account, done: (err: Error, user: Account) => void) => {
-      process.nextTick(() => {
-        return done(null, user)
-      })
-    }
-  )
+  _passport.serializeUser((user: Account, done: (err: Error, user: Account) => void) => {
+    process.nextTick(() => {
+      return done(null, user)
+    })
+  })
 
-  _passport.deserializeUser(
-    (user: Account, done: (err: Error, user: Account) => void) => {
-      process.nextTick(() => {
-        return done(null, user)
-      })
-    }
-  )
+  _passport.deserializeUser((user: Account, done: (err: Error, user: Account) => void) => {
+    process.nextTick(() => {
+      return done(null, user)
+    })
+  })
 
   return _passport
 }

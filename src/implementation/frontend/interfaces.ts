@@ -13,10 +13,7 @@ export type OneTime<T> = (() => T) | null
  * frontend では dispatch の呼び出し元に Context を返したくない（値の更新は store で行う）
  * ので Promise<void> としている
  */
-export type Action<
-  D extends DomainKeys,
-  U extends StringKeyof<Requirements[D]>
-> = (
+export type Action<D extends DomainKeys, U extends StringKeyof<Requirements[D]>> = (
   usecase: Usecase<D, U>,
   actor: Actor,
   service: FrontendService

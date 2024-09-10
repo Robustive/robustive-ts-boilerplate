@@ -16,7 +16,7 @@ const state = reactive<{
   dialogTitle: string | null
   dialogBody: string | null
 }>({
-  isDrawerOpen: false,
+  isDrawerOpen: true,
   isDialogOpen: false,
   dialogTitle: null,
   dialogBody: null
@@ -29,9 +29,7 @@ const onClickSignIn = () => {
 
 const onClickSignOut = () => {
   console.log("onClickSignOut")
-  dispatch(
-    R.authentication.signOut.basics.ユーザはサインアウトボタンを押下する()
-  )
+  dispatch(R.authentication.signOut.basics.ユーザはサインアウトボタンを押下する())
 }
 
 // main.ts で dispatch している bootユースケースの結果でエラーが発生していないかを監視
@@ -67,9 +65,7 @@ watch(
     >
       サインイン
     </v-btn>
-    <v-btn v-else append-icon="mdi-logout" @click="onClickSignOut">
-      サインアウト
-    </v-btn>
+    <v-btn v-else append-icon="mdi-logout" @click="onClickSignOut"> サインアウト </v-btn>
   </v-app-bar>
   <drawer
     v-model="state.isDrawerOpen"
@@ -87,11 +83,7 @@ watch(
       :text="state.dialogBody || ''"
     >
       <template v-slot:actions>
-        <v-btn
-          class="ms-auto"
-          text="Ok"
-          @click="state.isDialogOpen = false"
-        ></v-btn>
+        <v-btn class="ms-auto" text="Ok" @click="state.isDialogOpen = false"></v-btn>
       </template>
     </v-card>
   </v-dialog>

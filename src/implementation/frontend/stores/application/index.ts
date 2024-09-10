@@ -13,8 +13,7 @@ export interface ApplicationState extends State {
   readonly replyFromBackend: string | undefined
 }
 
-export interface ApplicationStore
-  extends StoreComposable<ApplicationState, "application"> {}
+export interface ApplicationStore extends StoreComposable<ApplicationState, "application"> {}
 
 export function useApplicationStore(): ApplicationStore {
   const state = reactive<ApplicationState>({
@@ -47,9 +46,7 @@ export function useApplicationStore(): ApplicationStore {
         actor: Actor,
         service: FrontendService
       ): Promise<void> => {
-        usecase.set(
-          new ScenarioDelegate(createFrontendBootChoreography(service))
-        )
+        usecase.set(new ScenarioDelegate(createFrontendBootChoreography(service)))
         return usecase.interactedBy(actor).then((_) => {})
       },
       [R.application.keys.hello]: (
@@ -57,9 +54,7 @@ export function useApplicationStore(): ApplicationStore {
         actor: Actor,
         service: FrontendService
       ): Promise<void> => {
-        usecase.set(
-          new ScenarioDelegate(createFrontendHelloChoreography(service))
-        )
+        usecase.set(new ScenarioDelegate(createFrontendHelloChoreography(service)))
         return usecase.interactedBy(actor).then((_) => {})
       }
     }

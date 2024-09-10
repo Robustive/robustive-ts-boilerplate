@@ -8,13 +8,15 @@ export function createBackendSignInBehavior(
 ): Behavior<SignInScenes> {
   // frontend からのリクエストを passport が処理するためユースケースを通らない
   return {
-    [R.authentication.signIn.keys.basics.ユーザはサインインボタンを押下する]:
-      (): Promise<Context<SignInScenes>> => {
-        throw new Error("not implemented")
-      },
-    [R.authentication.signIn.keys.basics.システムはGoogleOAuthを行う]:
-      (): Promise<Context<SignInScenes>> => {
-        throw new Error("not implemented")
-      }
+    [R.authentication.signIn.keys.basics.ユーザはサインインボタンを押下する]: (): Promise<
+      Context<SignInScenes>
+    > => {
+      throw new Error("not implemented")
+    },
+    [R.authentication.signIn.keys.basics.システムはGoogleOAuthを行う]: (): Promise<
+      Context<SignInScenes>
+    > => {
+      throw new Error("not implemented")
+    }
   }
 }

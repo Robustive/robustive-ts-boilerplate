@@ -29,9 +29,7 @@ export type SignInStatus = SwiftEnumCases<SignInStatusContext>
 
 export class User implements Entity {
   account: Account
-  static requiredScope: string[] = [
-    "https://www.googleapis.com/auth/contacts.readonly"
-  ]
+  static requiredScope: string[] = ["https://www.googleapis.com/auth/contacts.readonly"]
 
   constructor(account: Account)
   constructor(userProperties: UserProperties)

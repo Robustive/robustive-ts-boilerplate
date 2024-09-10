@@ -86,10 +86,7 @@ const status = "TODO:ステータスを表示"
           :key="'h' + idx"
           :title="item.title"
         />
-        <v-divider
-          v-else-if="item.case === DrawerContentType.divider"
-          :key="'d' + idx"
-        />
+        <v-divider v-else-if="item.case === DrawerContentType.divider" :key="'d' + idx" />
         <v-list-group
           v-else-if="item.case === DrawerContentType.group"
           :key="'g' + idx"

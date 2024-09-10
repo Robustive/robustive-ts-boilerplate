@@ -41,11 +41,7 @@ export function createFrontendHelloChoreography(
   }
 
   const mutation: Mutation<HelloScenes> = {
-    [goals.フロントエンドはバックエンドから返事を受け取る]: ({
-      hello
-    }: {
-      hello: string
-    }) => {
+    [goals.フロントエンドはバックエンドから返事を受け取る]: ({ hello }: { hello: string }) => {
       const reply = hello
       service.actions.set(service.states.application, "replyFromBackend", reply)
     }
