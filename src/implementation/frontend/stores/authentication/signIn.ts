@@ -9,7 +9,9 @@ export function createFrontendSignInChoreography(
 ): Choreography<SignInScenes> {
   const { basics, goals } = R.authentication.signIn.keys
 
-  const behavior = <A extends IActor<NOCARE>>(scenario: Scenario<SignInScenes>): Behavior<A, SignInScenes> => {
+  const behavior = <A extends IActor<NOCARE>>(
+    scenario: Scenario<SignInScenes>
+  ): Behavior<A, SignInScenes> => {
     return {
       [basics.ユーザはサインインボタンを押下する]: (_actor: A): Promise<Context<SignInScenes>> => {
         return scenario.just(scenario.basics.システムはGoogleOAuthを行う())

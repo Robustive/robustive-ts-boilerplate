@@ -11,17 +11,22 @@ export function createBackendBootChoreography(_service: BackendService): Choreog
     scenario: Scenario<BootScenes>
   ): Behavior<A, BootScenes> => {
     return {
-      [R.application.boot.keys.basics.ユーザはサイトを開く]: (_actor: A): Promise<Context<BootScenes>> => {
+      [R.application.boot.keys.basics.ユーザはサイトを開く]: (
+        _actor: A
+      ): Promise<Context<BootScenes>> => {
         throw new Error("not implemented")
       },
-      [R.application.boot.keys.basics.システムはサインインセッションを確認する]: (_actor: A, {
-        session
-      }: {
-        session: {
-          passport: { user?: Account }
-          hasError?: SessionStoredError
-        } | null
-      }): Promise<Context<BootScenes>> => {
+      [R.application.boot.keys.basics.システムはサインインセッションを確認する]: (
+        _actor: A,
+        {
+          session
+        }: {
+          session: {
+            passport: { user?: Account }
+            hasError?: SessionStoredError
+          } | null
+        }
+      ): Promise<Context<BootScenes>> => {
         if (session && session.passport && session.passport.user) {
           return scenario.just(
             scenario.goals.サインインセッションがある場合_システムはホーム画面を表示する({

@@ -9,13 +9,18 @@ export function createFrontendHelloChoreography(
   service: FrontendService
 ): Choreography<HelloScenes> {
   const { basics, goals } = R.application.hello.keys
-  const behavior = <A extends IActor<NOCARE>>(scenario: Scenario<HelloScenes>): Behavior<A, HelloScenes> => {
+  const behavior = <A extends IActor<NOCARE>>(
+    scenario: Scenario<HelloScenes>
+  ): Behavior<A, HelloScenes> => {
     return {
-      [basics.フロントエンドはバックエンドにHelloを送る]: (_actor: A, {
-        hello
-      }: {
-        hello: string
-      }): Promise<Context<HelloScenes>> => {
+      [basics.フロントエンドはバックエンドにHelloを送る]: (
+        _actor: A,
+        {
+          hello
+        }: {
+          hello: string
+        }
+      ): Promise<Context<HelloScenes>> => {
         return handOverToBackend(
           scenario.basics.バックエンドはフロントエンドからHelloを受け取る({
             hello
@@ -23,18 +28,24 @@ export function createFrontendHelloChoreography(
           scenario
         )
       },
-      [basics.バックエンドはフロントエンドからHelloを受け取る]: (_actor: A, {
-        hello: _hello
-      }: {
-        hello: string
-      }): Promise<Context<HelloScenes>> => {
+      [basics.バックエンドはフロントエンドからHelloを受け取る]: (
+        _actor: A,
+        {
+          hello: _hello
+        }: {
+          hello: string
+        }
+      ): Promise<Context<HelloScenes>> => {
         throw new Error("not implemented")
       },
-      [basics.バックエンドはフロンエンドに返事をする]: (_actor: A, {
-        hello: _hello
-      }: {
-        hello: string
-      }): Promise<Context<HelloScenes>> => {
+      [basics.バックエンドはフロンエンドに返事をする]: (
+        _actor: A,
+        {
+          hello: _hello
+        }: {
+          hello: string
+        }
+      ): Promise<Context<HelloScenes>> => {
         throw new Error("not implemented")
       }
     }

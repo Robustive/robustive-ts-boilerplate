@@ -10,7 +10,9 @@ import { Behavior, Choreography } from "@shared/scenarioDelegate"
 export function createFrontendBootChoreography(service: FrontendService): Choreography<BootScenes> {
   const { basics, goals } = R.application.boot.keys
 
-  const behavior = <A extends IActor<NOCARE>>(scenario: Scenario<BootScenes>): Behavior<A, BootScenes> => {
+  const behavior = <A extends IActor<NOCARE>>(
+    scenario: Scenario<BootScenes>
+  ): Behavior<A, BootScenes> => {
     return {
       [basics.ユーザはサイトを開く]: (_actor: A): Promise<Context<BootScenes>> => {
         return scenario.just(
@@ -19,14 +21,17 @@ export function createFrontendBootChoreography(service: FrontendService): Choreo
           })
         )
       },
-      [basics.システムはサインインセッションを確認する]: (_actor: A, {
-        session
-      }: {
-        session: {
-          passport: { user?: Account }
-          hasError?: SessionStoredError
-        } | null
-      }): Promise<Context<BootScenes>> => {
+      [basics.システムはサインインセッションを確認する]: (
+        _actor: A,
+        {
+          session
+        }: {
+          session: {
+            passport: { user?: Account }
+            hasError?: SessionStoredError
+          } | null
+        }
+      ): Promise<Context<BootScenes>> => {
         return handOverToBackend(
           scenario.basics.システムはサインインセッションを確認する({ session }),
           scenario

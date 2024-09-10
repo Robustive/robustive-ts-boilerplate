@@ -12,14 +12,14 @@ export function createBackendSignOutChoreography(
   ): Behavior<A, SignOutScenes> => {
     // frontend からのリクエストを passport が処理するためユースケースを通らない
     return {
-      [R.authentication.signOut.keys.basics.ユーザはサインアウトボタンを押下する]: (_actor: A): Promise<
-        Context<SignOutScenes>
-      > => {
+      [R.authentication.signOut.keys.basics.ユーザはサインアウトボタンを押下する]: (
+        _actor: A
+      ): Promise<Context<SignOutScenes>> => {
         throw new Error("not implemented")
       },
-      [R.authentication.signOut.keys.basics.システムはサインインセッションを破棄する]: (_actor: A): Promise<
-        Context<SignOutScenes>
-      > => {
+      [R.authentication.signOut.keys.basics.システムはサインインセッションを破棄する]: (
+        _actor: A
+      ): Promise<Context<SignOutScenes>> => {
         throw new Error("not implemented")
       }
     }
