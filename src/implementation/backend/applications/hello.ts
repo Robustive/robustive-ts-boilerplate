@@ -7,11 +7,13 @@ import { Context, IActor, NOCARE, Scenario } from "robustive-ts"
 export function createBackendHelloChoreography(
   _service: BackendService
 ): Choreography<HelloScenes> {
+  const { basics } = R.application.hello.keys
+
   const behavior = <A extends IActor<NOCARE>>(
     scenario: Scenario<HelloScenes>
   ): Behavior<A, HelloScenes> => {
     return {
-      [R.application.hello.keys.basics.フロントエンドはバックエンドにHelloを送る]: (
+      [basics.フロントエンドはバックエンドにHelloを送る]: (
         _actor: A,
         {
           hello: _hello
@@ -21,7 +23,7 @@ export function createBackendHelloChoreography(
       ): Promise<Context<HelloScenes>> => {
         throw new Error("not implemented")
       },
-      [R.application.hello.keys.basics.バックエンドはフロントエンドからHelloを受け取る]: (
+      [basics.バックエンドはフロントエンドからHelloを受け取る]: (
         _actor: A,
         {
           hello: _hello
@@ -35,7 +37,7 @@ export function createBackendHelloChoreography(
           })
         )
       },
-      [R.application.hello.keys.basics.バックエンドはフロンエンドに返事をする]: (
+      [basics.バックエンドはフロンエンドに返事をする]: (
         _actor: A,
         {
           hello

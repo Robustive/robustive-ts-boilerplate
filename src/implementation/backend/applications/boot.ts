@@ -7,16 +7,18 @@ import { Behavior, Choreography } from "@shared/scenarioDelegate"
 import { Context, IActor, NOCARE, Scenario } from "robustive-ts"
 
 export function createBackendBootChoreography(_service: BackendService): Choreography<BootScenes> {
+  const { basics } = R.application.boot.keys
+
   const behavior = <A extends IActor<NOCARE>>(
     scenario: Scenario<BootScenes>
   ): Behavior<A, BootScenes> => {
     return {
-      [R.application.boot.keys.basics.ユーザはサイトを開く]: (
+      [basics.ユーザはサイトを開く]: (
         _actor: A
       ): Promise<Context<BootScenes>> => {
         throw new Error("not implemented")
       },
-      [R.application.boot.keys.basics.システムはサインインセッションを確認する]: (
+      [basics.システムはサインインセッションを確認する]: (
         _actor: A,
         {
           session

@@ -7,17 +7,19 @@ import { Context, IActor, NOCARE, Scenario } from "robustive-ts"
 export function createBackendSignOutChoreography(
   _service: BackendService
 ): Choreography<SignOutScenes> {
+  const { basics } = R.authentication.signOut.keys
+
   const behavior = <A extends IActor<NOCARE>>(
     _scenario: Scenario<SignOutScenes>
   ): Behavior<A, SignOutScenes> => {
     // frontend からのリクエストを passport が処理するためユースケースを通らない
     return {
-      [R.authentication.signOut.keys.basics.ユーザはサインアウトボタンを押下する]: (
+      [basics.ユーザはサインアウトボタンを押下する]: (
         _actor: A
       ): Promise<Context<SignOutScenes>> => {
         throw new Error("not implemented")
       },
-      [R.authentication.signOut.keys.basics.システムはサインインセッションを破棄する]: (
+      [basics.システムはサインインセッションを破棄する]: (
         _actor: A
       ): Promise<Context<SignOutScenes>> => {
         throw new Error("not implemented")
