@@ -1,15 +1,13 @@
 {
   /* Solution Style */
+  /* VSCode はこの tsconfig を見て依存関係を解決しようとする */
   "files": [],
   "references": [
     {
       "path": "./packages/frontend/tsconfig.app.json"
     },
     {
-      "path": "./packages/frontend/tsconfig.node.json"
-    },
-    {
-      "path": "./tsconfig.vscode.backend.json"
+      "path": "./packages/backend/tsconfig.json"
     },
     {
       "path": "./tsconfig.test.json"

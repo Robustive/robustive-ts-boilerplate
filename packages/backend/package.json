@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "nodemon",
-    "build": "node --env-file=.env.local ../../node_modules/.bin/nest build",
+    "build": "tsc",
     "start": "node --enable-source-maps -r ts-node/register --env-file=.env.local ../../src/implementation/backend/main.ts",
     "pgtyped": "npx pgtyped -c pgtyped.config.json",
     "playground": "node -r ts-node/register playground.ts"

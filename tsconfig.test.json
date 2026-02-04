@@ -1,15 +1,11 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "composite": true /* for Solution Style */,
+    "tsBuildInfoFile": "node_modules/.tmp/test.tsbuildinfo",
     "esModuleInterop": true,
-    "strict": true,
-    "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "baseUrl": ".",
     "paths": {
       "@domain/*": ["src/domain/*"],
       "@backend/*": ["src/implementation/backend/*"],
@@ -22,7 +18,7 @@
     "types": ["vitest/globals"]
   },
   "include": [
-    "src/**/*.ts",
+    "src/test/**/*.ts",
     "src/**/*.spec.ts",
     "src/**/*.test.ts"
   ],

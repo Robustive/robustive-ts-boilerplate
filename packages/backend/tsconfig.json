@@ -1,11 +1,14 @@
 {
+  /* backendパッケージで tsc する際はこれを参照する。VSCode 向けに、ルートの tsconfig からも参照している */
   "compilerOptions": {
+    "composite": true /* for Solution Style */,
     /**
      * incrementalビルドに必要な情報を出力しているファイルのパス。viteに合わせて変更しているが、
      * nest-cli.json で deleteOutDir : true にしている場合は一緒に消えて欲しいので dist以下に出るようにコメントアウト
      */
     // "tsBuildInfoFile": "../../node_modules/.tmp/backend.tsbuildinfo",
     "module": "CommonJS",
+    "rootDir": "../../" /* VSCodeでのPROBLEMS（ts6059: 'rootDir' is expected to contain all source files.）対策 */,
     "baseUrl": "../../",
     "paths": {
       "@dependencies/*": ["src/dependencies/*"],

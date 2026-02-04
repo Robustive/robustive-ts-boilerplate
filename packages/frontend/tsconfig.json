@@ -1,0 +1,13 @@
+{
+  /* Solution Style */
+  /* frontendパッケージで vue-tsc する際はこれを参照する */
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
