@@ -5,10 +5,10 @@
     "baseUrl": "./"
   },
   "include": [
+    "src/dependencies/**/*.ts",
+    "src/dependencies/**/*.sql",
     "src/domain/**/*.ts",
-    "src/infrastructure/**/*.ts",
     "src/implementation/backend/**/*.ts",
-    // "src/implementation/frontend/**/*.ts",
     "src/implementation/shared/**/*.ts"
   ] /* VSCodeのTypeScript対策 */
 }

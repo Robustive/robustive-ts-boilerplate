@@ -1,14 +1,19 @@
-import { R, Usecase } from "@domain/usecases"
-import { Actor } from "@domain/actors"
+import { R } from "@domain/usecases"
 import { State, StoreComposable } from "../../interfaces"
 import { reactive } from "vue"
-import { FrontendService } from ".."
 import { SignInStatus } from "@domain/models/authentication/user"
 import { createFrontendSignInChoreography } from "./signIn"
 import { createFrontendSignOutChoreography } from "./signOut"
-import { ScenarioDelegate } from "@shared/scenarioDelegate"
 
-export interface AuthenticationState extends State {}
+export interface AuthenticationState extends State {
+  // readonly signInStatus: SignInStatus | null
+  // readonly idInvalidMessage: string | string[] | undefined
+  // readonly passwordInvalidMessage: string | string[] | undefined
+  // readonly signInFailureMessage: string | undefined
+  // readonly isPresentAdministratorRegistrationDialog: boolean
+  // readonly domain: string | null
+  // readonly account: Account | null
+}
 
 export interface AuthenticationStore
   extends StoreComposable<AuthenticationState, "authentication"> {}
@@ -20,23 +25,9 @@ export function useAuthenticationStore(): AuthenticationStore {
 
   return {
     state,
-    actions: {
-      [R.authentication.keys.signIn]: (
-        usecase: Usecase<"authentication", "signIn">,
-        actor: Actor,
-        service: FrontendService
-      ): Promise<void> => {
-        usecase.set(new ScenarioDelegate(createFrontendSignInChoreography(service)))
-        return usecase.interactedBy(actor).then((_) => {})
-      },
-      [R.authentication.keys.signOut]: (
-        usecase: Usecase<"authentication", "signOut">,
-        actor: Actor,
-        service: FrontendService
-      ): Promise<void> => {
-        usecase.set(new ScenarioDelegate(createFrontendSignOutChoreography(service)))
-        return usecase.interactedBy(actor).then((_) => {})
-      }
+    choreographies: {
+      [R.authentication.keys.signIn]: createFrontendSignInChoreography,
+      [R.authentication.keys.signOut]: createFrontendSignOutChoreography
     }
   }
 }

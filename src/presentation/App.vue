@@ -4,7 +4,7 @@ import { inject } from "vue"
 
 const {
   states
-  // , actions: { dispatch }
+  // , helpers: { trigger }
 } = inject<FrontendService>(SERVICE_KEY)!
 </script>
 
@@ -12,7 +12,12 @@ const {
   <v-app id="inspire">
     <v-row v-if="states.shared.isLoading" align="center">
       <v-col align="center">
-        <v-progress-circular :size="120" :width="15" color="purple" indeterminate />
+        <v-progress-circular
+          :size="120"
+          :width="15"
+          color="purple"
+          indeterminate
+        />
       </v-col>
     </v-row>
     <router-view v-else />

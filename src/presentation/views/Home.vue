@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { FrontendService, SERVICE_KEY } from "../../implementation/frontend/stores"
+import {
+  FrontendService,
+  SERVICE_KEY
+} from "../../implementation/frontend/stores"
 
 import { inject, reactive } from "vue"
 import { R } from "../../domain/usecases"
 
 const {
   states,
-  actions: { dispatch }
+  helpers: { trigger }
 } = inject<FrontendService>(SERVICE_KEY)!
 
 const state = reactive<{
@@ -16,8 +19,8 @@ const state = reactive<{
 })
 
 const onClick = () => {
-  dispatch(
-    R.application.hello.basics.フロントエンドはバックエンドにHelloを送る({
+  trigger(
+    R.application.hello.basics.ユーザはHelloを送る({
       hello: "Backend"
     })
   ).then(() => {
@@ -33,12 +36,7 @@ const onClick = () => {
     <v-btn @click="onClick()">Hello Backend!!</v-btn>
   </v-container>
   <v-dialog v-model="state.isDialogOpen" width="auto">
-    <v-card
-      width="400"
-      prepend-icon="mdi-check"
-      title="Hello"
-      :text="states.application.replyFromBackend"
-    >
+    <v-card width="400" prepend-icon="mdi-check" title="Hello" :text="states.application.replyFromBackend">
       <template v-slot:actions>
         <v-btn class="ms-auto" text="Ok" @click="state.isDialogOpen = false"></v-btn>
       </template>

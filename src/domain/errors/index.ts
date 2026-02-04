@@ -1,8 +1,19 @@
-import { SwiftEnum, SwiftEnumCases } from "robustive-ts"
+import { AuthenticationErrorCode } from "./authentication"
+import { ValidationErrorCode } from "./validation"
 
-type SessionStoredErrorContext = {
-  domainNotAllowed: { title: string; body: string; domain: string }
+export type ServiceErrorCode = AuthenticationErrorCode | ValidationErrorCode
+
+export class ServiceError extends Error {
+  readonly name: string
+
+  constructor(private _code: ServiceErrorCode) {
+    const { case: name, ...rest } = _code
+    super(JSON.stringify(rest))
+    this.name = name
+    Object.setPrototypeOf(this, new.target.prototype)
+  }
+
+  get code(): ServiceErrorCode {
+    return this._code
+  }
 }
-
-export const SessionStoredError = new SwiftEnum<SessionStoredErrorContext>()
-export type SessionStoredError = SwiftEnumCases<SessionStoredErrorContext>

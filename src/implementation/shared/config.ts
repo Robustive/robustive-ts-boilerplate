@@ -1,4 +1,3 @@
 export const config = {
-  BACKEND_GLOBAL_PREFIX: "api",
-  AUTHORIZED_DOMAIN: null
+  BACKEND_GLOBAL_PREFIX: "api"
 } as const

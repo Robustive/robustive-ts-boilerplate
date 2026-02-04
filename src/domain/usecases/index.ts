@@ -3,10 +3,11 @@ import { HelloScenes } from "./application/hello"
 import {
   AllUsecases,
   AllUsecasesOverDomain,
+  InferScenes,
   Robustive,
   Scenario,
-  Usecase as UsecaseOrg
-} from "robustive-ts"
+  Usecase as UsecaseOrg,
+} from "@robustive/robustive-ts"
 import { SignInScenes } from "./authentication/signIn"
 import { SignOutScenes } from "./authentication/signOut"
 
@@ -19,7 +20,7 @@ export const requirements = {
     signIn: Scenario<SignInScenes>,
     signOut: Scenario<SignOutScenes>
   }
-} as const
+}
 
 export const R = new Robustive(requirements)
 
@@ -33,11 +34,12 @@ export type UsecaseKeys = {
 
 export type Usecases = AllUsecasesOverDomain<Requirements>
 export type UsecasesOf<D extends DomainKeys> = AllUsecases<Requirements, D>
-export type Usecase<D extends DomainKeys, U extends keyof Requirements[D]> = UsecaseOrg<
-  Requirements,
-  D,
-  U
->
+export type Usecase<
+  D extends DomainKeys,
+  U extends keyof Requirements[D]
+> = UsecaseOrg<Requirements, D, U>
+
+export type Scenes<D extends DomainKeys, U extends keyof Requirements[D]> = InferScenes<Requirements, D, U>
 
 export type UsecaseLog<D extends DomainKeys> = {
   id: string

@@ -1,4 +1,4 @@
-import { Empty } from "robustive-ts"
+import { Empty } from "@robustive/robustive-ts"
 
 /**
  * usecase: サインアウトする
@@ -6,9 +6,11 @@ import { Empty } from "robustive-ts"
 export type SignOutScenes = {
   basics: {
     ユーザはサインアウトボタンを押下する: Empty
-    システムはサインインセッションを破棄する: Empty
+    トークンによるセッション管理の場合_システムはリフレッシュトークンを破棄する: Empty
   }
-  alternatives: Empty
+  alternatives: {
+    セッションストアによるセッション管理の場合_システムはセッションを破棄する: Empty
+  }
   goals: {
     システムはホーム画面を表示する: Empty
   }

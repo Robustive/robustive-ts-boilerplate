@@ -3,19 +3,20 @@ import { SignInStatus } from "@domain/models/authentication/user"
 import { DomainKeys, R, Requirements, Usecase } from "@domain/usecases"
 import { Nobody } from "@domain/actors/nobody"
 import { AuthenticatedUser } from "@domain/actors/authenticatedUser"
-import { DomainActionsMap, OneTime, State } from "../interfaces"
+import { Choreographies, DomainChoreographiesMap, OneTime, State, UsecaseResult } from "../interfaces"
 import { ApplicationState, useApplicationStore } from "./application"
-import { InjectionKey, reactive, watch, WatchStopHandle } from "vue"
-import { Router, RouteLocationRaw } from "vue-router"
-import { Subscription } from "rxjs"
-import { Empty, Scenes, StringKeyof } from "robustive-ts"
+import { InjectionKey, reactive } from "vue"
+import { RouteLocationRaw } from "vue-router"
+import { Empty, Scenes, StringKeyof } from "@robustive/robustive-ts"
 import { AuthenticationState, useAuthenticationStore } from "./authentication"
-import { SessionStoredError } from "@domain/errors"
+import { ScenarioDelegate } from "@frontend/scenarioDelegate"
+import { ServiceErrorCode } from "@domain/errors"
+import { handOverToBackend } from "@frontend/common"
 
 export type Mutation<Z extends Scenes> = {
   [S in keyof Z["goals"]]: Z["goals"][S] extends Empty
-    ? () => void
-    : (associatedValues: Z["goals"][S]) => void
+  ? () => void
+  : (associatedValues: Z["goals"][S]) => void
 }
 
 export interface SharedState extends State {
@@ -23,13 +24,13 @@ export interface SharedState extends State {
   readonly routeLocation: RouteLocationRaw
   readonly signInStatus: SignInStatus
   readonly isLoading: boolean
-  readonly sessionStoredError: OneTime<SessionStoredError>
+  readonly sessionStoredError: OneTime<ServiceErrorCode>
 }
 
-type TypeOfStateItem<S extends State, K extends keyof S> = S[K] extends infer V
+export type TypeOfStateItem<S extends State, K extends keyof S> = S[K] extends infer V
   ? V extends OneTime<infer OTV>
-    ? OTV
-    : V
+  ? OTV
+  : V
   : never
 
 export type FrontendService = {
@@ -38,11 +39,11 @@ export type FrontendService = {
     application: ApplicationState
     authentication: AuthenticationState
   }
-  actions: {
-    dispatch: <D extends DomainKeys, U extends StringKeyof<Requirements[D]>>(
+  helpers: {
+    trigger: <D extends DomainKeys, U extends StringKeyof<Requirements[D]>>(
       usecase: Usecase<D, U>,
       actor?: Actor
-    ) => Promise<Subscription | void>
+    ) => Promise<UsecaseResult<D, U>>
     set: <S extends State, K extends keyof S>(
       state: S,
       key: K,
@@ -53,7 +54,7 @@ export type FrontendService = {
       key: K,
       value: TypeOfStateItem<S, K>
     ) => void
-    navigateTo: (path: string, onlyUpdateCurrentRouteLocation?: boolean) => void
+    navigateTo: (path: string) => void
     change: (signInStatus: SignInStatus) => void
     startLoading: () => void
     stopLoading: () => void
@@ -65,8 +66,7 @@ export type FrontendService = {
  * @param initialPath
  * @returns
  */
-export function createFrontendService(router: Router): FrontendService {
-  const initialPath = router.currentRoute.value.path
+export function createFrontendService(initialPath: string): FrontendService {
   const shared = reactive<SharedState>({
     actor: new Nobody(),
     routeLocation: initialPath,
@@ -75,13 +75,15 @@ export function createFrontendService(router: Router): FrontendService {
     sessionStoredError: null
   }) as SharedState // reactiveで型が壊れるので、再度型を指定する
 
-  const { state: application, actions: applicationActions } = useApplicationStore()
+  const { state: application, choreographies: applicationChoreographies } =
+    useApplicationStore()
 
-  const { state: authentication, actions: authenticationActions } = useAuthenticationStore()
+  const { state: authentication, choreographies: authenticationChoreographies } =
+    useAuthenticationStore()
 
-  const domainActionsMap: DomainActionsMap = {
-    [R.keys.application]: applicationActions,
-    [R.keys.authentication]: authenticationActions
+  const domainChoreographiesMap: DomainChoreographiesMap = {
+    [R.keys.application]: applicationChoreographies,
+    [R.keys.authentication]: authenticationChoreographies
   }
 
   const set = <S extends State, K extends keyof S>(
@@ -109,59 +111,56 @@ export function createFrontendService(router: Router): FrontendService {
       application,
       authentication
     },
-    actions: {
-      dispatch: <D extends DomainKeys, U extends StringKeyof<Requirements[D]>>(
+    helpers: {
+      trigger: <D extends DomainKeys, U extends StringKeyof<Requirements[D]>>(
         usecase: Usecase<D, U>,
         actor?: Actor
-      ): Promise<Subscription | void> => {
+      ): Promise<UsecaseResult<D, U>> => {
         const _actor = actor || shared.actor
         console.info(
-          `[DISPATCH] ${usecase.domain}.${usecase.name}.${usecase.course}.${usecase.scene} (${usecase.id})`
+          `[TRIGGER] ${usecase.domain}.${usecase.name}.${usecase.course}.${usecase.scene} (${usecase.id})`
         )
 
-        if (usecase.domain === R.keys.application && usecase.name === R.application.keys.boot) {
-          const action = domainActionsMap[usecase.domain][usecase.name]
-          return action(usecase, _actor, service)
+        if (
+          usecase.domain === R.keys.application &&
+          usecase.name === R.application.keys.boot
+        ) {
+          const choreographies = domainChoreographiesMap[usecase.domain] as Choreographies<D>
+          usecase.set(new ScenarioDelegate(choreographies[usecase.name](service, handOverToBackend)))
+          return usecase.interactedBy(_actor)
         }
 
         // 初回表示時対応
         // signInStatus が不明の場合、signInUserでないと実行できないUsecaseがエラーになるので、
         // ステータスが変わるのを監視し、その後実行し直す
-        if (shared.signInStatus.case === SignInStatus.keys.unknown) {
-          console.info("[DISPATCH] signInStatus が 不明のため、ユースケースの実行を保留します...")
-          let stopHandle: WatchStopHandle | null = null
-          return new Promise<void>((resolve) => {
-            stopHandle = watch(shared.signInStatus, (newValue) => {
-              if (newValue.case !== SignInStatus.keys.unknown) {
-                console.log(
-                  `[DISPATCH] signInStatus が "${newValue.case as string}" に変わったため、保留したユースケースを再開します...`
-                )
-                resolve()
-              }
-            })
-          }).then(() => {
-            stopHandle?.()
-            return service.actions.dispatch(usecase)
-          })
-        }
+        // if (shared.signInStatus.case === SignInStatus.unknown) {
+        //   console.info(
+        //     "[TRIGGER] signInStatus が 不明のため、ユースケースの実行を保留します..."
+        //   );
+        //   let stopHandle: WatchStopHandle | null = null;
+        //   return new Promise<void>((resolve) => {
+        //     stopHandle = watch(shared.signInStatus, (newValue) => {
+        //       if (newValue.case !== SignInStatus.unknown) {
+        //         console.log(
+        //           `[TRIGGER] signInStatus が "${newValue.case as string}" に変わったため、保留したユースケースを再開します...`
+        //         );
+        //         resolve();
+        //       }
+        //     });
+        //   }).then(() => {
+        //     stopHandle?.();
+        //     return service.helpers.trigger(usecase);
+        //   });
+        // }
 
-        const action = domainActionsMap[usecase.domain][usecase.name]
-        return action(usecase, _actor, service)
+        const choreographies = domainChoreographiesMap[usecase.domain] as Choreographies<D>
+        usecase.set(new ScenarioDelegate(choreographies[usecase.name](service, handOverToBackend)))
+        return usecase.interactedBy(_actor)
       },
       set,
       setOneTime,
-      navigateTo: (path: string, onlyUpdateCurrentRouteLocation: boolean = false) => {
-        const oldValue = shared.routeLocation
+      navigateTo: (path: string) => {
         set(shared, "routeLocation", path)
-
-        if (onlyUpdateCurrentRouteLocation && onlyUpdateCurrentRouteLocation === true) {
-          return service.actions.stopLoading()
-        }
-
-        console.info("★☆★☆★ RouteLocation:", oldValue, "--->", path)
-        router.push(path).finally(() => {
-          service.actions.stopLoading()
-        })
       },
       change: (signInStatus: SignInStatus) => {
         const prevStatus = shared.signInStatus.case
@@ -172,11 +171,7 @@ export function createFrontendService(router: Router): FrontendService {
 
         switch (signInStatus.case) {
           case SignInStatus.keys.signIn: {
-            set(shared, "actor", new AuthenticatedUser(signInStatus.userProperties))
-            break
-          }
-          case SignInStatus.keys.signingIn: {
-            set(shared, "actor", new AuthenticatedUser(signInStatus.account))
+            set(shared, "actor", new AuthenticatedUser(signInStatus.account, signInStatus.accessToken))
             break
           }
           case SignInStatus.keys.signOut: {
@@ -209,4 +204,6 @@ export function createFrontendService(router: Router): FrontendService {
   return service
 }
 
-export const SERVICE_KEY = Symbol("FrontendService") as InjectionKey<FrontendService>
+export const SERVICE_KEY = Symbol(
+  "FrontendService"
+) as InjectionKey<FrontendService>

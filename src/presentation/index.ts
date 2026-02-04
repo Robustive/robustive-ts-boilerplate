@@ -1,42 +1,24 @@
 import Main from "./views/Main.vue"
 import Home from "./views/Home.vue"
-import Page1 from "./views/Page1.vue"
-import Page2 from "./views/Page2.vue"
-import Page3 from "./views/Page3.vue"
+import Profile from "./views/Profile.vue"
+import ProfileEdit from "./views/ProfileEdit.vue"
+import { RouteRecordRaw } from "vue-router"
+import { PageId } from "@domain/models/authentication/authorization"
+
+export const Views: { [key in PageId]: RouteRecordRaw } = {
+  [PageId.Main]: { name: PageId.Main, path: "/", component: Main },
+  [PageId.Home]: { name: PageId.Home, path: "", component: Home },
+  [PageId.Profile]: { name: PageId.Profile, path: "profile", component: Profile },
+  [PageId.ProfileEdit]: { name: PageId.ProfileEdit, path: "profile/edit", component: ProfileEdit }
+} as const
+
+export type ViewNames = keyof typeof Views
 
 export const routes = [
   {
-    path: "/",
-    component: Main,
-    children: [
-      { path: "", component: Home }
-      /* path: "" と一緒に他の子を定義すると、その他の子が active な時、Homeも同時に active になってしまうので分けている   */
-      // { path: "page1", component: Page1 },
-      // { path: "page2", component: Page2 },
-      // { path: "page3", component: Page3 }
-    ]
-  },
-  {
-    path: "/",
-    component: Main,
-    children: [
-      { path: "page1", component: Page1 },
-      { path: "page2", component: Page2 },
-      { path: "page3", component: Page3 }
-    ]
-  },
-  {
-    path: "/group",
-    component: Main,
-    children: [{ path: "", component: Home }]
-  },
-  {
-    path: "/group",
-    component: Main,
-    children: [
-      { path: "page1", component: Page1 },
-      { path: "page2", component: Page2 },
-      { path: "page3", component: Page3 }
-    ]
+    ...Views.Main,
+    children: [Views.Home, Views.Profile, Views.ProfileEdit]
   }
+  // { path: "/signin", component: SignIn },
+  // { path: "/signup", component: SignUp }
 ]

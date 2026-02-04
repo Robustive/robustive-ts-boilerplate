@@ -5,10 +5,11 @@ import { setHandOverSettings } from "@frontend/common"
 
 import App from "./App.vue"
 
-import { createApp } from "vue"
+import { createApp, watch } from "vue"
 import { loadRouter } from "./plugins/vueRouter"
 import { loadVuetify } from "./plugins/vuetify"
 import { config } from "@shared/config"
+import { PageId } from "@domain/models/authentication/authorization"
 
 setHandOverSettings({
   url: `http://localhost:3001/${config.BACKEND_GLOBAL_PREFIX}`
@@ -18,30 +19,59 @@ const router = loadRouter(app)
 loadVuetify(app)
 
 router.isReady().then(() => {
-  const service = createFrontendService(router)
+  const initialPath = router.currentRoute.value.path
+  const service = createFrontendService(initialPath)
   app.provide(SERVICE_KEY, service)
 
   /* Setup for Routing */
+  watch(
+    () => service.states.shared.routeLocation,
+    (newValue, oldValue) => {
+      console.info("★☆★☆★ RouteLocation:", oldValue, "--->", newValue)
+      router.replace(newValue).finally(() => {
+        service.helpers.stopLoading()
+      })
+    }
+  )
+
   router.beforeEach((to, from) => {
+    const matchedRoute = router.resolve(to.path)
+    const pageId = matchedRoute.matched[matchedRoute.matched.length - 1]?.name as PageId
+
+    if (!pageId) {
+      console.warn(`${to.path} はありません。`)
+      return { name: PageId.Main }
+    }
+
+    /* Roleによる閲覧チェック */
+    if (!service.states.shared.actor.canAccessPage(pageId)) {
+      console.warn(
+        `Actor ${service.states.shared.actor.constructor.name} は ${pageId} にアクセスできません。トップへリダイレクトします。`
+      )
+      // アクセス権限がない場合はトップ画面へリダイレクト
+      return { name: PageId.Main }
+    }
+
+    /* 直アクセスの場合、navigateToで呼び直す */
     if (
       service.states.shared.routeLocation !== to.path &&
       service.states.shared.routeLocation === from.path
     ) {
       console.warn(
-        "RouteLocation was changed directly, e.g. from <v-list-item :to='...'/>, the address bar or browser back (current:",
+        "!!!!! RouteLocation was changed directly by the user, e.g. from the address bar.",
         from.path,
         "--->",
-        to.path,
-        ")."
+        to.path
       )
-      service.actions.navigateTo(to.path, true)
+      service.helpers.navigateTo(to.path)
+      return false
     }
     return true
   })
 
   if (service.states.shared.signInStatus.case === SignInStatus.keys.unknown) {
-    service.actions
-      .dispatch(R.application.boot.basics.ユーザはサイトを開く())
+    service.helpers
+      .trigger(R.application.boot.basics.ユーザはサイトを開く())
       .catch((e) => console.error(e))
   }
 

@@ -2,7 +2,7 @@
 import { SignInStatus } from "@domain/models/authentication/user"
 import { DrawerContentType } from "."
 import type { DrawerItem } from "."
-import { computed, onBeforeUnmount, onMounted, reactive, watch } from "vue"
+import { computed, reactive, watch } from "vue"
 
 const props = defineProps<{
   modelValue: boolean
@@ -12,16 +12,15 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (e: "update:modelValue", isOpen: boolean): void
+  (e: "click:signIn"): void
 }>()
 
 const state = reactive<{
   isOpen: boolean
   openings: string[]
-  selected: DrawerItem[] | undefined
 }>({
   isOpen: props.modelValue,
-  openings: [],
-  selected: undefined
+  openings: []
 })
 
 watch(
@@ -31,27 +30,15 @@ watch(
   }
 )
 
-const unselector = () => {
-  state.selected = undefined
-}
-
-onMounted(() => {
-  window.addEventListener("popstate", unselector)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener("popstate", unselector)
-})
-
 const photoUrl = computed((): string | undefined => {
   return props.signInStatus.case === SignInStatus.keys.signIn
-    ? (props.signInStatus.userProperties.photoUrl ?? undefined)
+    ? (props.signInStatus.account.photoUrl ?? undefined)
     : undefined
 })
 
 const displayName = computed((): string | undefined => {
   return props.signInStatus.case === SignInStatus.keys.signIn
-    ? (props.signInStatus.userProperties.photoUrl ?? undefined)
+    ? (props.signInStatus.account.displayName ?? undefined)
     : undefined
 })
 
@@ -59,12 +46,16 @@ const status = "TODO:ステータスを表示"
 </script>
 
 <template>
-  <v-navigation-drawer
-    v-model="state.isOpen"
-    @update:model-value="emits('update:modelValue', state.isOpen)"
-  >
+  <v-navigation-drawer v-model="state.isOpen" @update:model-value="emits('update:modelValue', state.isOpen)">
     <v-list bg-color="grey-lighten-4">
-      <v-list-item :title="displayName" :subtitle="status" to="/profile">
+      <v-list-item v-if="props.signInStatus.case === SignInStatus.keys.signOut" @click="emits('click:signIn')">
+        <div class="d-flex justify-center align-center w-100">
+          <span class="mr-2">サインイン</span>
+          <v-icon icon="mdi-login" />
+        </div>
+      </v-list-item>
+      <v-list-item v-else-if="props.signInStatus.case === SignInStatus.keys.signIn" :title="displayName"
+        :subtitle="status" to="/profile">
         <template v-slot:prepend>
           <v-avatar size="x-large">
             <v-img v-if="photoUrl" :src="photoUrl" :alt="displayName" />
@@ -74,57 +65,26 @@ const status = "TODO:ステータスを表示"
       </v-list-item>
     </v-list>
     <v-divider />
-    <v-list
-      nav
-      v-model:opened="state.openings"
-      v-model:selected="state.selected"
-      open-strategy="multiple"
-    >
+    <v-list nav v-model:opened="state.openings">
       <template v-for="(item, idx) in props.items">
-        <v-list-subheader
-          v-if="item.case === DrawerContentType.subheader"
-          :key="'h' + idx"
-          :title="item.title"
-        />
+        <v-list-subheader v-if="item.case === DrawerContentType.header" :key="'h' + idx">
+          {{ item.title }}
+        </v-list-subheader>
         <v-divider v-else-if="item.case === DrawerContentType.divider" :key="'d' + idx" />
-        <v-list-group
-          v-else-if="item.case === DrawerContentType.group"
-          :key="'g' + idx"
-          :value="item"
-        >
+        <v-list-group v-else-if="item.case === DrawerContentType.group" :key="'g' + idx" :value="item">
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" :title="item.title" />
           </template>
           <template v-for="(child, idx2) in item.children">
-            <v-list-subheader
-              v-if="child.case === DrawerContentType.subheader"
-              :key="'g' + idx + '_h' + idx2"
-              :title="child.title"
-            />
-            <v-divider
-              v-else-if="child.case === DrawerContentType.divider"
-              :key="'g' + idx + '_d' + idx2"
-            />
-            <v-list-item
-              v-else
-              :key="'g' + idx + '_g' + idx2"
-              :value="child"
-              :title="child.title"
-              :to="child.href"
-              color="primary"
-              rounded="xl"
-            />
+            <v-list-subheader v-if="child.case === DrawerContentType.header" :key="'g' + idx + '_h' + idx2">
+              {{ child.title }}
+            </v-list-subheader>
+            <v-divider v-else-if="child.case === DrawerContentType.divider" :key="'g' + idx + '_d' + idx2" />
+            <v-list-item v-else :key="'g' + idx + '_g' + idx2" :value="child" :title="child.title" :to="child.href"
+              color="primary" rounded="xl" />
           </template>
         </v-list-group>
-        <v-list-item
-          v-else
-          :key="'i' + idx"
-          :value="item"
-          :title="item.title"
-          :to="item.href"
-          color="primary"
-          rounded="xl"
-        />
+        <v-list-item v-else :key="idx" :value="item" :title="item.title" :to="item.href" color="primary" rounded="xl" />
       </template>
     </v-list>
   </v-navigation-drawer>

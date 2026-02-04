@@ -10,6 +10,9 @@
     },
     {
       "path": "./tsconfig.vscode.backend.json"
+    },
+    {
+      "path": "./tsconfig.test.json"
     }
   ]
 }

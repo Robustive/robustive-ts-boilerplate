@@ -1,28 +1,33 @@
 {
   "name": "robustive-ts-boilerplate",
-  "packageManager": "yarn@4.1.1",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "serve": "sh ./scripts/setup.sh & yarn workspace frontend build:watch & yarn workspace backend start",
+    "serve": "concurrently -k \"yarn workspace frontend typecheck:watch\" \"yarn workspace backend dev\"",
+    "start": "yarn workspace frontend build; yarn workspace backend start",
     "build": "yarn workspaces foreach --all run build",
     "format": "prettier --write \"src/**/*.(ts|vue)\"",
-    "lint": "eslint \"src/**/*.{ts,vue}\" --fix"
+    "lint": "eslint \"src/**/*.{ts,vue}\" --fix",
+    "test": "vitest"
   },
   "dependencies": {
+    "@robustive/robustive-ts": "^1.1.1",
     "axios": "^1.7.2",
-    "robustive-ts": "github:Robustive/robustive-ts#0.7-template",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.7.0",
     "@types/eslint": "^9",
+    "concurrently": "^9.2.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.8.0",
     "prettier": "3.3.3",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^7.17.0"
-  }
+    "typescript-eslint": "^7.17.0",
+    "vitest": "^4.0.18"
+  },
+  "packageManager": "yarn@4.12.0"
 }

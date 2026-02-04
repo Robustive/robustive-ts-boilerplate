@@ -8,8 +8,8 @@
     "module": "CommonJS",
     "baseUrl": "../../",
     "paths": {
+      "@dependencies/*": ["src/dependencies/*"],
       "@domain/*": ["src/domain/*"],
-      "@infrastructure/*": ["src/infrastructure/*"],
       "@backend/*": ["src/implementation/backend/*"],
       "@shared/*": ["src/implementation/shared/*"]
     },
@@ -30,8 +30,9 @@
     "noFallthroughCasesInSwitch": false
   },
   "include": [
+    "../../src/dependencies/**/*.ts",
+    "../../src/dependencies/**/*.sql",
     "../../src/domain/**/*.ts",
-    "../../src/infrastructure/**/*.ts",
     "../../src/implementation/backend/**/*.ts",
     "../../src/implementation/shared/**/*.ts"
   ],

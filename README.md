@@ -51,8 +51,8 @@ VSCode は ルーディレクトリの `tsconfig.json` を参照している。�
     "module": "commonjs",
     "baseUrl": "../../",
     "paths": {
+      "@dependencies/*": ["src/dependencies/*"],
       "@domain/*": ["src/domain/*"],
-      "@infrastructure/*": ["src/infrastructure/*"],
       "@backend/*": ["src/implementation/backend/*"],
       "@shared/*": ["src/implementation/shared/*"]
     },
